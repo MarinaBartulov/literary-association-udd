@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1k19kuc" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.4.0">
+  <bpmn:process id="Pay_Membership_Fee_Process" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_0v3365g</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_0v3365g" sourceRef="StartEvent_1" targetRef="Activity_14x62z5" />
+    <bpmn:sendTask id="Activity_14x62z5" name="Sending Message Membership Fee Paid" camunda:class="team16.literaryassociation.services.MembershipFeePayment">
+      <bpmn:incoming>Flow_0v3365g</bpmn:incoming>
+      <bpmn:outgoing>Flow_0bwsfnn</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:endEvent id="Event_020jsug">
+      <bpmn:incoming>Flow_0bwsfnn</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0bwsfnn" sourceRef="Activity_14x62z5" targetRef="Event_020jsug" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Pay_Membership_Fee_Process">
+      <bpmndi:BPMNEdge id="Flow_0v3365g_di" bpmnElement="Flow_0v3365g">
+        <di:waypoint x="215" y="117" />
+        <di:waypoint x="270" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0bwsfnn_di" bpmnElement="Flow_0bwsfnn">
+        <di:waypoint x="370" y="117" />
+        <di:waypoint x="432" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1u0iv4y_di" bpmnElement="Activity_14x62z5">
+        <dc:Bounds x="270" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_020jsug_di" bpmnElement="Event_020jsug">
+        <dc:Bounds x="432" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
