@@ -57,7 +57,8 @@ const SearchBooks = () => {
     setSelectedAmount({ value: 1, label: "1" });
   };
 
-  const seeBookDetails = async (bookId) => {
+  const seeBookDetails = async (event, bookId) => {
+    event.preventDefault();
     try {
       const response = await bookService.getBookDetails(bookId);
       console.log(response);
@@ -81,59 +82,50 @@ const SearchBooks = () => {
   return (
     <div>
       <Header />
-      <h2>Books</h2>
-      <div
-        style={{ width: "60%", backgroundColor: "#bdbbbb" }}
-        className="ml-auto mr-auto"
-      >
-        <Table>
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Genre</th>
-              <th>Writer</th>
-              <th>Publisher</th>
-              <th>Price</th>
-              <th>Details</th>
-              <th>Add to cart</th>
-            </tr>
-          </thead>
-          <tbody>
-            {books.map((book) => {
-              return (
-                <tr key={book.id}>
-                  <td>{book.title}</td>
-                  <td>{book.genre}</td>
-                  <td>{book.writer}</td>
-                  <td>{book.publisher}</td>
-                  <td>{book.price}&#36;</td>
-                  <td>
-                    <Button
-                      style={{ borderRadius: "2em" }}
-                      variant="primary"
-                      onClick={() => {
-                        seeBookDetails(book.id);
-                      }}
-                    >
-                      Details
-                    </Button>
-                  </td>
-                  <td>
-                    <Button
-                      style={{ borderRadius: "2em" }}
-                      variant="success"
-                      onClick={() => {
-                        addToCart(book, 1);
-                      }}
-                    >
-                      Add to cart
-                    </Button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </Table>
+      <h2>Search books</h2>
+      <div style={{ width: "60%" }} className="ml-auto mr-auto">
+        {books.map((book) => {
+          return (
+            <div
+              style={{
+                backgroundColor: "#bdbbbb",
+                textAlign: "left",
+              }}
+              className="card mr-auto ml-auto mb-2 pl-2"
+            >
+              <a href="" onClick={(e) => seeBookDetails(e, book.id)}>
+                <h3 style={{ textAlign: "center" }}>{book.title}</h3>
+              </a>
+
+              <h6>Writer: {book.writer}</h6>
+              <h6>Genre: {book.genre}</h6>
+              <h6>Price (nepotrebo): {book.price}&#36;</h6>
+              <h6>Publisher (nepotrebno): {book.publisher}</h6>
+              <h6>Highlight:</h6>
+              <p>{book.publisher}</p>
+              {book.openAccess && (
+                <Button
+                  style={{ borderRadius: "2em", width: "7em" }}
+                  variant="primary"
+                >
+                  Download
+                </Button>
+              )}
+              {!book.openAccess && (
+                <Button
+                  style={{ borderRadius: "2em", width: "7em" }}
+                  className="mb-1"
+                  variant="success"
+                  onClick={() => {
+                    addToCart(book, 1);
+                  }}
+                >
+                  Add to cart
+                </Button>
+              )}
+            </div>
+          );
+        })}
       </div>
       {showDetails && (
         <Modal

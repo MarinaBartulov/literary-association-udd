@@ -206,7 +206,7 @@ const Header = () => {
           )}
         </Nav>
 
-        <Nav className="justify-content-end" style={{ width: "50%" }}>
+        <Nav className="justify-content-end" style={{ width: "30%" }}>
           {loggedIn && role === "ROLE_READER" && (
             <Button className="ml-2" variant="link" onClick={goToSubscription}>
               Subscribe
