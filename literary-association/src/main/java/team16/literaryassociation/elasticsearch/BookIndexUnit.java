@@ -8,7 +8,7 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
-@Document(indexName = "bookIndex")
+@Document(indexName = "books_index", shards = 1, replicas = 0)
 @AllArgsConstructor
 @NoArgsConstructor
 @Data

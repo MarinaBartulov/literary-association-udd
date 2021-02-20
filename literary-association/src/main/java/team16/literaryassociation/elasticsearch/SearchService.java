@@ -1,9 +1,8 @@
 package team16.literaryassociation.elasticsearch;
 
-import org.springframework.stereotype.Service;
+import java.util.List;
 
-@Service
-public class SearchService {
+public interface SearchService {
 
-
+    List<BetaReaderIndexUnit> findBetaReadersForGenre(String genre, String writerUsername);
 }

@@ -26,7 +26,7 @@ public class ReaderServiceImpl implements ReaderService {
 
     @Override
     public List<Reader> getAllBetaReaders() {
-        return readerRepository.findAllBetReaders();
+        return readerRepository.findAllBetaReaders();
     }
 
     @Override

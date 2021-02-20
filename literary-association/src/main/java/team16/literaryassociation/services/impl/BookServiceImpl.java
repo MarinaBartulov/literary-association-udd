@@ -62,4 +62,10 @@ public class BookServiceImpl implements BookService {
     public Book findById(Long id) {
         return this.bookRepository.findById(id).orElse(null);
     }
+
+    @Override
+    public List<Book> getBooks() {
+
+        return this.bookRepository.findAll();
+    }
 }

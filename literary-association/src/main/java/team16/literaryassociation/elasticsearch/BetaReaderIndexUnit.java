@@ -10,7 +10,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import org.springframework.data.elasticsearch.annotations.GeoPointField;
 import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 
-@Document(indexName = "betaReaderIndex")
+@Document(indexName = "beta_readers_index", shards = 1, replicas = 0)
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -23,10 +23,7 @@ public class BetaReaderIndexUnit {
     private Long betaReaderId;
 
     @Field(type = FieldType.Text, store = true, analyzer = "serbian")
-    private String firstName;
-
-    @Field(type = FieldType.Text, store = true, analyzer = "serbian")
-    private String lastName;
+    private String fullName;
 
     @Field(type = FieldType.Text, store = true, analyzer = "serbian")
     private String genres;
