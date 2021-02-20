@@ -4,6 +4,7 @@ import com.byteowls.jopencage.JOpenCageGeocoder;
 import com.byteowls.jopencage.model.JOpenCageForwardRequest;
 import com.byteowls.jopencage.model.JOpenCageLatLng;
 import com.byteowls.jopencage.model.JOpenCageResponse;
+import org.apache.commons.compress.utils.Lists;
 import org.elasticsearch.common.geo.GeoDistance;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -29,6 +30,7 @@ import team16.literaryassociation.services.interfaces.ReaderService;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -51,22 +53,29 @@ public class IndexerController {
     @GetMapping(value = "/books")
     public ResponseEntity indexBooks() throws IOException {
 
+        this.bookIndexRepository.deleteAll();
         List<Book> books = this.bookService.getBooks();
-        System.out.println("Broj pronadjenih knjiga: " + books.size());
+        System.out.println("Books indexing started...");
         for(Book book : books){
-            System.out.println("Indeksiranje knjige " + book.getTitle());
+            System.out.println("Book: " + book.getTitle());
             BookIndexUnit biu = new BookIndexUnit();
             biu.setId(book.getId());
             biu.setTitle(book.getTitle());
             biu.setGenre(book.getGenre().getName());
             biu.setOpenAccess(book.isOpenAccess());
+            biu.setPdf(book.getPdf());
             biu.setWriter(book.getWriter().getFirstName() + " " + book.getWriter().getLastName());
             String content = this.contentService.getContent(book.getPdf());
-            System.out.println("Content uspesno ekstrahovan");
+            if(content == null) {
+                System.out.println("Content not extracted.");
+                return ResponseEntity.badRequest().body("Error occurred while extracting content.");
+            }
             biu.setContent(content);
             this.bookIndexRepository.save(biu);
-            System.out.println("Knjiga indeksirana");
+            System.out.println("Book is indexed");
         }
+
+        System.out.println("Books indexing finished.");
 
         return ResponseEntity.ok().build();
 
@@ -75,7 +84,9 @@ public class IndexerController {
     @GetMapping(value = "/betaReaders")
     public ResponseEntity indexBetaReaders() {
 
+        this.betaReaderIndexRepository.deleteAll();
         List<Reader> betaReaders = this.readerService.getAllBetaReaders();
+        System.out.println("Beta-readers indexing started...");
 
         for(Reader r : betaReaders){
             BetaReaderIndexUnit br = new BetaReaderIndexUnit();
@@ -101,24 +112,9 @@ public class IndexerController {
             System.out.println("Indeksiran");
         }
 
-        return ResponseEntity.ok().build();
-
-    }
-
-    @GetMapping(value = "/findBetaReaders")
-    public ResponseEntity findBetaReaders() {
-
-        BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
-        queryBuilder.mustNot(QueryBuilders.geoDistanceQuery("location").geoDistance(GeoDistance.ARC).point(45.26553,19.8294194).distance("100km"));
-        queryBuilder.must(QueryBuilders.queryStringQuery("Crime").field("genres"));
-        queryBuilder.must(QueryBuilders.queryStringQuery("Classic").field("genres"));
-        NativeSearchQuery searchQuery = new NativeSearchQueryBuilder().withQuery(queryBuilder).build();
-        List<BetaReaderIndexUnit> betaReadersFound = this.elasticsearchTemplate.queryForList(searchQuery, BetaReaderIndexUnit.class);
-        System.out.println(betaReadersFound.size());
-        for(BetaReaderIndexUnit bt : betaReadersFound){
-            System.out.println("Found " + bt.getFullName());
-        }
-
+        System.out.println("Beta-readers indexing finished.");
+        List<BetaReaderIndexUnit> betaReadersFound = this.betaReaderIndexRepository.findAll().getContent();
+        System.out.println("Ukupno beta readera: " + betaReadersFound.size());
         return ResponseEntity.ok().build();
 
     }

@@ -4,8 +4,13 @@ import org.camunda.bpm.engine.delegate.BpmnError;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import team16.literaryassociation.dto.FormSubmissionDTO;
+import team16.literaryassociation.elasticsearch.model.BetaReaderIndexUnit;
+import team16.literaryassociation.elasticsearch.model.BookIndexUnit;
+import team16.literaryassociation.elasticsearch.repository.BookIndexRepository;
+import team16.literaryassociation.elasticsearch.service.ContentService;
 import team16.literaryassociation.model.*;
 import team16.literaryassociation.services.interfaces.*;
 
@@ -30,6 +35,11 @@ public class SaveBookAndSendToIndexingService implements JavaDelegate {
 
     @Autowired
     private BookService bookService;
+
+    @Autowired
+    private ContentService contentService;
+    @Autowired
+    private BookIndexRepository bookIndexRepository;
 
     @Override
     public void execute(DelegateExecution delegateExecution) throws Exception {
@@ -117,7 +127,32 @@ public class SaveBookAndSendToIndexingService implements JavaDelegate {
         book.setPublishersAddress("Trg Nikole Pasica 4, Beograd");
 
         try {
+
             bookService.save(book);
+
+            //************* SLANJE NA INDEKSIRANJE *************
+
+            BookIndexUnit biu = new BookIndexUnit();
+            biu.setId(book.getId());
+            biu.setTitle(book.getTitle());
+            biu.setGenre(book.getGenre().getName());
+            biu.setOpenAccess(book.isOpenAccess());
+            biu.setPdf(book.getPdf());
+            biu.setWriter(book.getWriter().getFirstName() + " " + book.getWriter().getLastName());
+            String content = this.contentService.getContent(book.getPdf());
+            if(content == null) {
+                System.out.println("Content not extracted.");
+                delegateExecution.setVariable("globalError", true);
+                delegateExecution.setVariable("globalErrorMessage", "Saving book failed.");
+                throw new BpmnError("BOOK_SAVING_FAILED", "Saving book failed.");
+            }
+            biu.setContent(content);
+            this.bookIndexRepository.save(biu);
+
+            List<BookIndexUnit> bookIndexUnitsFound = this.bookIndexRepository.findAll().getContent();
+            System.out.println("Ukupno knjiga: " + bookIndexUnitsFound.size());
+
+
         } catch (Exception e) {
             delegateExecution.setVariable("globalError", true);
             delegateExecution.setVariable("globalErrorMessage", "Saving book failed.");

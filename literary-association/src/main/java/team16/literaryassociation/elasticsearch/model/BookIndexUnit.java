@@ -34,5 +34,7 @@ public class BookIndexUnit {
     @Field(type = FieldType.Boolean, store = true)
     private boolean openAccess;
 
+    @Field(type = FieldType.Text, store = true)
+    private String pdf;
 
 }

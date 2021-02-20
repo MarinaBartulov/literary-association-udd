@@ -1,8 +1,10 @@
 import { Button, Modal } from "react-bootstrap";
 import React, { useState, useEffect } from "react";
-import { Table } from "react-bootstrap";
 import Header from "./Header";
 import { bookService } from "../services/book-service";
+import { searchService } from "../services/search-service";
+import { indexerService } from "../services/indexer-service";
+
 import { shoppingCartService } from "../services/shopping-cart-service";
 import { toast } from "react-toastify";
 import { AMOUNT } from "../constants";
@@ -75,6 +77,36 @@ const SearchBooks = () => {
     }
   };
 
+  const indexBetaReaders = async () => {
+    try {
+      const response = await indexerService.indexBetaReaders();
+      toast.success("Indexing beta-readers successfully finished.", {
+        hideProgressBar: true,
+      });
+    } catch (error) {
+      toast.error(error.response ? error.response.data : error.message, {
+        hideProgressBar: true,
+      });
+    }
+  };
+
+  const indexBooks = async () => {
+    try {
+      const response = await indexerService.indexBooks();
+      toast.success("Indexing books successfully finished.", {
+        hideProgressBar: true,
+      });
+    } catch (error) {
+      toast.error(error.response ? error.response.data : error.message, {
+        hideProgressBar: true,
+      });
+    }
+  };
+
+  const basicSearch = () => {};
+
+  const advancedSearch = () => {};
+
   useEffect(() => {
     getBooks();
   }, []);
@@ -82,7 +114,43 @@ const SearchBooks = () => {
   return (
     <div>
       <Header />
-      <h2>Search books</h2>
+      <div style={{ textAlign: "start", width: "95%" }}>
+        <Button
+          size="sm"
+          variant="warning"
+          className="ml-2 mt-1"
+          onClick={indexBetaReaders}
+        >
+          Index beta-readers
+        </Button>
+        <Button
+          className="ml-2 mt-1"
+          variant="warning"
+          size="sm"
+          onClick={indexBooks}
+        >
+          Index books
+        </Button>
+      </div>
+      <div>
+        <h2>Search books</h2>
+      </div>
+      <Button
+        className="ml-2"
+        style={{ width: "9em" }}
+        size="sm"
+        onClick={basicSearch}
+      >
+        Basic search
+      </Button>
+      <Button
+        className="ml-2"
+        style={{ width: "9em" }}
+        size="sm"
+        onClick={advancedSearch}
+      >
+        Advanced search
+      </Button>
       <div style={{ width: "60%" }} className="ml-auto mr-auto">
         {books.map((book) => {
           return (

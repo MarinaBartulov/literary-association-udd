@@ -26,6 +26,7 @@ public class ContentServiceImpl implements ContentService {
         try {
             Resource resource = new UrlResource(path.toUri());
             File file = resource.getFile();
+            System.out.println(file.getPath());
             RandomAccessFile randomAccessFile = new RandomAccessFile(file, "r");
             PDFParser parser = new PDFParser(randomAccessFile);
             parser.parse();
@@ -35,6 +36,7 @@ public class ContentServiceImpl implements ContentService {
             pdfTextStripper.setStartPage(1);
             pdfTextStripper.setEndPage(pdDoc.getNumberOfPages());
             content = pdfTextStripper.getText(pdDoc);
+            pdDoc.close();
             return content;
 
         }catch(IOException exception){

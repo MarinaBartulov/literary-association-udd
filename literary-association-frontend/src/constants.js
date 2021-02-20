@@ -25,6 +25,8 @@ export const ROUTES = {
   MEMBERSHIP_FEE_PAYMENT: "/writer/membership-fee-payment",
   START_PLAGIARSM_DETECTION: "/book/start-process-plagiarism-detection",
   SUBSCRIPTIONS: "/subscriptions",
+  INDEX: "/index",
+  SEARCH: "/search",
 };
 
 export const AMOUNT = [
