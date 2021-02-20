@@ -2,9 +2,23 @@ import { HttpService } from "./http-service";
 import { ROUTES } from "../constants";
 
 class SearchService extends HttpService {
-  createOrder = async (payload) => {
-    const response = await this.client.post(ROUTES.ORDER, payload);
+  basicSearch = async (payload) => {
+    const response = await this.client.post(ROUTES.SEARCH + "/basic", payload);
     return response.data;
+  };
+
+  advancedSearch = async (payload) => {
+    const response = await this.client.post(
+      ROUTES.SEARCH + "/advanced",
+      payload
+    );
+    return response.data;
+  };
+
+  download = async (url) => {
+    const response = await this.client.get(
+      "/task/downloadFile?filePath=" + url
+    );
   };
 }
 

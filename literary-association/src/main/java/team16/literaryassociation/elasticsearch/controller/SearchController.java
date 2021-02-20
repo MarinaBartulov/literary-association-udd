@@ -8,13 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import team16.literaryassociation.elasticsearch.dto.SearchBasicDTO;
+import team16.literaryassociation.elasticsearch.dto.SearchResultDTO;
 import team16.literaryassociation.elasticsearch.model.BetaReaderIndexUnit;
+import team16.literaryassociation.elasticsearch.service.SearchService;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -24,12 +26,25 @@ public class SearchController {
     @Autowired
     private ElasticsearchRestTemplate elasticsearchTemplate;
 
+    @Autowired
+    private SearchService searchService;
+
 
 
     @PostMapping(value = "/basic")
-    public ResponseEntity basicSearch(){
+    public ResponseEntity basicSearch(@RequestBody SearchBasicDTO searchBasicDTO) throws IOException {
 
-        return ResponseEntity.ok().build();
+        if(!searchBasicDTO.getField().equals("title") && !searchBasicDTO.getField().equals("writer")
+        && !searchBasicDTO.getField().equals("content") && !searchBasicDTO.getField().equals("genre")
+        && !searchBasicDTO.getField().equals("all")){
+            return ResponseEntity.badRequest().body("You can't search by given field.");
+        }
+        if(searchBasicDTO.getQuery().trim().equals("")){
+            return ResponseEntity.badRequest().body("Query can't be empty.");
+        }
+
+        List<SearchResultDTO> searchResultDTOS = this.searchService.basicSearch(searchBasicDTO);
+        return new ResponseEntity(searchResultDTOS, HttpStatus.OK);
     }
 
     @PostMapping(value = "/advanced")

@@ -1,9 +1,11 @@
-package team16.literaryassociation.elasticsearch;
+package team16.literaryassociation.elasticsearch.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,7 +16,8 @@ public class SearchResultDTO {
     private Long id;
     private String title;
     private String writer;
-    private String highlight;
+    private String highlights;
     private String genre;
     private boolean openAccess;
+    private String pdf;
 }

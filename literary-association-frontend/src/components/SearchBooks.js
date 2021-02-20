@@ -1,4 +1,4 @@
-import { Button, Modal } from "react-bootstrap";
+import { Button, Modal, Form } from "react-bootstrap";
 import React, { useState, useEffect } from "react";
 import Header from "./Header";
 import { bookService } from "../services/book-service";
@@ -8,7 +8,8 @@ import { indexerService } from "../services/indexer-service";
 import { shoppingCartService } from "../services/shopping-cart-service";
 import { toast } from "react-toastify";
 import { AMOUNT } from "../constants";
-import Select from "react-select";
+import Select from "react-dropdown-select";
+import Select1 from "react-select";
 
 const SearchBooks = () => {
   const [books, setBooks] = useState([]);
@@ -19,6 +20,34 @@ const SearchBooks = () => {
     value: 1,
     label: "1",
   });
+  const [showBasic, setShowBasic] = useState(true);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+  const [fields, setFields] = useState([
+    {
+      value: "title",
+      label: "Title",
+    },
+    {
+      value: "content",
+      label: "Content",
+    },
+    {
+      value: "writer",
+      label: "Writer",
+    },
+    {
+      value: "genre",
+      label: "Genre",
+    },
+    {
+      value: "all",
+      label: "All",
+    },
+  ]);
+  const [selectedField, setSelectedField] = useState("");
+  const [query, setQuery] = useState("");
+  const [phrase, setPhrase] = useState(false);
 
   const getBooks = async () => {
     try {
@@ -103,13 +132,22 @@ const SearchBooks = () => {
     }
   };
 
-  const basicSearch = () => {};
+  const basicSearch = async (event) => {
+    event.preventDefault();
+
+    let payload = { field: selectedField, query: query, phrase: phrase };
+    try {
+      const response = await searchService.basicSearch(payload);
+      setBooks(response);
+      setShowResults(true);
+    } catch (error) {
+      toast.error(error.response ? error.response.data : error.message, {
+        hideProgressBar: true,
+      });
+    }
+  };
 
   const advancedSearch = () => {};
-
-  useEffect(() => {
-    getBooks();
-  }, []);
 
   return (
     <div>
@@ -139,7 +177,10 @@ const SearchBooks = () => {
         className="ml-2"
         style={{ width: "9em" }}
         size="sm"
-        onClick={basicSearch}
+        onClick={() => {
+          setShowBasic(true);
+          setShowAdvanced(false);
+        }}
       >
         Basic search
       </Button>
@@ -147,54 +188,115 @@ const SearchBooks = () => {
         className="ml-2"
         style={{ width: "9em" }}
         size="sm"
-        onClick={advancedSearch}
+        onClick={() => {
+          setShowAdvanced(true);
+          setShowBasic(false);
+        }}
       >
         Advanced search
       </Button>
-      <div style={{ width: "60%" }} className="ml-auto mr-auto">
-        {books.map((book) => {
-          return (
-            <div
-              style={{
-                backgroundColor: "#bdbbbb",
-                textAlign: "left",
-              }}
-              className="card mr-auto ml-auto mb-2 pl-2"
-            >
-              <a href="" onClick={(e) => seeBookDetails(e, book.id)}>
-                <h3 style={{ textAlign: "center" }}>{book.title}</h3>
-              </a>
-
-              <h6>Writer: {book.writer}</h6>
-              <h6>Genre: {book.genre}</h6>
-              <h6>Price (nepotrebo): {book.price}&#36;</h6>
-              <h6>Publisher (nepotrebno): {book.publisher}</h6>
-              <h6>Highlight:</h6>
-              <p>{book.publisher}</p>
-              {book.openAccess && (
-                <Button
-                  style={{ borderRadius: "2em", width: "7em" }}
-                  variant="primary"
-                >
-                  Download
-                </Button>
-              )}
-              {!book.openAccess && (
-                <Button
-                  style={{ borderRadius: "2em", width: "7em" }}
-                  className="mb-1"
-                  variant="success"
-                  onClick={() => {
-                    addToCart(book, 1);
-                  }}
-                >
-                  Add to cart
-                </Button>
-              )}
+      {showBasic && (
+        <div className="mr-auto ml-auto" style={{ width: "50%" }}>
+          <h6>Basic search</h6>
+          <Select
+            placeholder="Search by..."
+            options={fields}
+            style={{ backgroundColor: "white", marginBottom: "1em" }}
+            onChange={(values) => {
+              setSelectedField(values[0].value);
+              console.log(values[0].value);
+            }}
+          />
+          <Form onSubmit={basicSearch}>
+            <div className="row">
+              <div className="col-10">
+                <Form.Group>
+                  <Form.Control
+                    type="text"
+                    onChange={(e) => {
+                      const { id, value } = e.target;
+                      setQuery(value);
+                    }}
+                    placeholder="Enter query"
+                    required
+                  />
+                </Form.Group>
+              </div>
+              <div className="col-2">
+                <Form.Group>
+                  <Form.Check
+                    type="checkbox"
+                    onChange={(e) => {
+                      setPhrase(e.target.checked);
+                    }}
+                    label="Phrase?"
+                  />
+                </Form.Group>
+              </div>
             </div>
-          );
-        })}
-      </div>
+          </Form>
+        </div>
+      )}
+      {showAdvanced && (
+        <div>
+          <h6>Advanced search</h6>
+          <form>
+            <input type="text" name="query" id="query" />
+          </form>
+        </div>
+      )}
+      {showResults && (
+        <div style={{ width: "60%" }} className="ml-auto mr-auto">
+          <h6>Results:</h6>
+          {books.map((book, index) => {
+            return (
+              <div
+                key={index}
+                style={{
+                  backgroundColor: "#bdbbbb",
+                  textAlign: "left",
+                }}
+                className="card mr-auto ml-auto mb-2 pl-2"
+              >
+                <a href="" onClick={(e) => seeBookDetails(e, book.id)}>
+                  <h3 style={{ textAlign: "center" }}>{book.title}</h3>
+                </a>
+
+                <h6>Writer: {book.writer}</h6>
+                <h6>Genre: {book.genre}</h6>
+                <h6>Highlight:</h6>
+                <div
+                  dangerouslySetInnerHTML={{ __html: book.highlights }}
+                ></div>
+                {book.openAccess && (
+                  <Button
+                    style={{ borderRadius: "2em", width: "7em" }}
+                    className="mb-1"
+                    variant="primary"
+                    onClick={() => {}}
+                  >
+                    <a style={{ color: "white" }} href={downloadUrl + book.pdf}>
+                      Download
+                    </a>
+                  </Button>
+                )}
+                {!book.openAccess && (
+                  <Button
+                    style={{ borderRadius: "2em", width: "7em" }}
+                    className="mb-1"
+                    variant="success"
+                    onClick={() => {
+                      addToCart(book, 1);
+                    }}
+                  >
+                    Add to cart
+                  </Button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
       {showDetails && (
         <Modal
           size="lg"
@@ -252,7 +354,7 @@ const SearchBooks = () => {
           </Modal.Body>
           <Modal.Footer>
             Amount:
-            <Select
+            <Select1
               value={selectedAmount}
               onChange={(selectedValue) => {
                 console.log(selectedValue);
