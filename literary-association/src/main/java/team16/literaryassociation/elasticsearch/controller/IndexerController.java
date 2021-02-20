@@ -1,4 +1,4 @@
-package team16.literaryassociation.elasticsearch;
+package team16.literaryassociation.elasticsearch.controller;
 
 import com.byteowls.jopencage.JOpenCageGeocoder;
 import com.byteowls.jopencage.model.JOpenCageForwardRequest;
@@ -16,12 +16,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import team16.literaryassociation.elasticsearch.model.BetaReaderIndexUnit;
+import team16.literaryassociation.elasticsearch.model.BookIndexUnit;
+import team16.literaryassociation.elasticsearch.repository.BetaReaderIndexRepository;
+import team16.literaryassociation.elasticsearch.repository.BookIndexRepository;
+import team16.literaryassociation.elasticsearch.service.ContentService;
 import team16.literaryassociation.model.Book;
 import team16.literaryassociation.model.Genre;
 import team16.literaryassociation.model.Reader;
 import team16.literaryassociation.services.interfaces.BookService;
 import team16.literaryassociation.services.interfaces.ReaderService;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -36,14 +43,30 @@ public class IndexerController {
     private BookIndexRepository bookIndexRepository;
     @Autowired
     private BetaReaderIndexRepository betaReaderIndexRepository;
-
     @Autowired
     private ElasticsearchRestTemplate elasticsearchTemplate;
+    @Autowired
+    private ContentService contentService;
 
     @GetMapping(value = "/books")
-    public ResponseEntity indexBooks() {
+    public ResponseEntity indexBooks() throws IOException {
 
         List<Book> books = this.bookService.getBooks();
+        System.out.println("Broj pronadjenih knjiga: " + books.size());
+        for(Book book : books){
+            System.out.println("Indeksiranje knjige " + book.getTitle());
+            BookIndexUnit biu = new BookIndexUnit();
+            biu.setId(book.getId());
+            biu.setTitle(book.getTitle());
+            biu.setGenre(book.getGenre().getName());
+            biu.setOpenAccess(book.isOpenAccess());
+            biu.setWriter(book.getWriter().getFirstName() + " " + book.getWriter().getLastName());
+            String content = this.contentService.getContent(book.getPdf());
+            System.out.println("Content uspesno ekstrahovan");
+            biu.setContent(content);
+            this.bookIndexRepository.save(biu);
+            System.out.println("Knjiga indeksirana");
+        }
 
         return ResponseEntity.ok().build();
 

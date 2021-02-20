@@ -5,7 +5,6 @@ target/
 !**/src/test/**/target/
 
 literary-works-dir
-uploaded-files
 
 ### STS ###
 .apt_generated

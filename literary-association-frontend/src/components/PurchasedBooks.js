@@ -10,7 +10,7 @@ const PurchasedBooks = () => {
 
   const [bookToShow, setBookToShow] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
-  const downloadUrl = "https://localhost:8080/api/task/downloadFile";
+  const downloadUrl = "https://localhost:8080/api/task/downloadFile?filePath=";
 
   const getPurchasedBooks = async () => {
     try {

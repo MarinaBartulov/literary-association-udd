@@ -1,4 +1,4 @@
-package team16.literaryassociation.elasticsearch;
+package team16.literaryassociation.elasticsearch.service;
 
 import com.byteowls.jopencage.JOpenCageGeocoder;
 import com.byteowls.jopencage.model.JOpenCageForwardRequest;
@@ -12,6 +12,8 @@ import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Service;
+import team16.literaryassociation.elasticsearch.model.BetaReaderIndexUnit;
+import team16.literaryassociation.elasticsearch.service.SearchService;
 import team16.literaryassociation.model.Writer;
 import team16.literaryassociation.services.interfaces.WriterService;
 

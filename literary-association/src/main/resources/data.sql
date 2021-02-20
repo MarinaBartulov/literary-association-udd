@@ -54,14 +54,14 @@ insert into user (type, email, password, username, first_name, last_name, city, 
 values ('Writer', 'bojka.slike@gmail.com', '$2a$10$MgS2lefNxeyaDHxP/inYO.D0G5bkS8OX5RbAj7MJgghT16n6dQwIe', 'writer1234', 'Nikola', 'Nikolic', 'NS', 'Srbija', true, true);
 
 -- editors (sifra: reader123)
-insert into user (type, email, password, username, first_name, last_name, city, country, verified, enabled)
-value ('Editor', 'prvieditor@maildrop.cc', '$2a$10$MgS2lefNxeyaDHxP/inYO.D0G5bkS8OX5RbAj7MJgghT16n6dQwIe', 'editor1', 'Prvi', 'Prvic', 'NS', 'Srbija', true, true);
-insert into user (type, email, password, username, first_name, last_name, city, country, verified, enabled)
-value ('Editor', 'drugieditor@maildrop.cc', '$2a$10$MgS2lefNxeyaDHxP/inYO.D0G5bkS8OX5RbAj7MJgghT16n6dQwIe', 'editor12', 'Drugi', 'Drugic', 'NS', 'Srbija', true, true);
-insert into user (type, email, password, username, first_name, last_name, city, country, verified, enabled)
-value ('Editor', 'trecieditor@maildrop.cc', '$2a$10$MgS2lefNxeyaDHxP/inYO.D0G5bkS8OX5RbAj7MJgghT16n6dQwIe', 'editor1234', 'Treci', 'Trecic', 'NS', 'Srbija', true, true);
-insert into user (type, email, password, username, first_name, last_name, city, country, verified, enabled)
-value ('Editor', 'cetvrtieditor@maildrop.cc', '$2a$10$MgS2lefNxeyaDHxP/inYO.D0G5bkS8OX5RbAj7MJgghT16n6dQwIe', 'editor12345', 'Cetvrti', 'Cetvrtic', 'NS', 'Srbija', true, true);
+-- insert into user (type, email, password, username, first_name, last_name, city, country, verified, enabled)
+-- value ('Editor', 'prvieditor@maildrop.cc', '$2a$10$MgS2lefNxeyaDHxP/inYO.D0G5bkS8OX5RbAj7MJgghT16n6dQwIe', 'editor1', 'Prvi', 'Prvic', 'NS', 'Srbija', true, true);
+-- insert into user (type, email, password, username, first_name, last_name, city, country, verified, enabled)
+-- value ('Editor', 'drugieditor@maildrop.cc', '$2a$10$MgS2lefNxeyaDHxP/inYO.D0G5bkS8OX5RbAj7MJgghT16n6dQwIe', 'editor12', 'Drugi', 'Drugic', 'NS', 'Srbija', true, true);
+-- insert into user (type, email, password, username, first_name, last_name, city, country, verified, enabled)
+-- value ('Editor', 'trecieditor@maildrop.cc', '$2a$10$MgS2lefNxeyaDHxP/inYO.D0G5bkS8OX5RbAj7MJgghT16n6dQwIe', 'editor1234', 'Treci', 'Trecic', 'NS', 'Srbija', true, true);
+-- insert into user (type, email, password, username, first_name, last_name, city, country, verified, enabled)
+-- value ('Editor', 'cetvrtieditor@maildrop.cc', '$2a$10$MgS2lefNxeyaDHxP/inYO.D0G5bkS8OX5RbAj7MJgghT16n6dQwIe', 'editor12345', 'Cetvrti', 'Cetvrtic', 'NS', 'Srbija', true, true);
 
 
 insert into user_roles (user_id, role_id) values (1,1); -- reader
@@ -76,18 +76,18 @@ insert into user_roles (user_id, role_id) values (9,6); -- lecturer
 insert into user_roles (user_id, role_id) values (10,6); -- lecturer
 insert into user_roles (user_id, role_id) values (11,6); -- lecturer
 insert into user_roles (user_id, role_id) values (12,2); -- writer
-insert into user_roles (user_id, role_id) values (13,5); -- editor
-insert into user_roles (user_id, role_id) values (14,5); -- editor
-insert into user_roles (user_id, role_id) values (15,5); -- editor
-insert into user_roles (user_id, role_id) values (16,5); -- editor
+-- insert into user_roles (user_id, role_id) values (13,5); -- editor
+-- insert into user_roles (user_id, role_id) values (14,5); -- editor
+-- insert into user_roles (user_id, role_id) values (15,5); -- editor
+-- insert into user_roles (user_id, role_id) values (16,5); -- editor
 
 
 insert into genre (name, description) value ('Thriller', 'Thrillers are characterized by fast pacing, frequent action, and resourceful heroes who must thwart the plans of more-powerful and better-equipped villains. Literary devices such as suspense, red herrings and cliffhangers are used extensively.');
-insert into genre (name, description) value ('Romance', 'Romance fiction is smart, fresh and diverse. Two basic elements comprise every romance novel: a central love story and an emotionally satisfying and optimistic ending.');
+insert into genre (name, description) value ('Technology', 'Books in the technology nonfiction genre are about the scientific knowledge and practical purposes used to control and adapt to one''s natural environment.');
 insert into genre (name, description) value ('Drama', 'Drama is a mode of fictional representation through dialogue and performance. It is one of the literary genres, which is an imitation of some action. It contains conflict of characters, particularly the ones who perform in front of audience on the stage.');
-insert into genre (name, description) value ('Crime', 'The crime genre includes the broad selection of books on criminals and the court system, but the most common focus is investigations and sleuthing. Mystery novels are usually placed into this category, although there is a separate division for "crime".');
+insert into genre (name, description) value ('Medicine', 'Books in the medical and medicine nonfiction genre are about medical practices and medicines used to treat illnesses. The books in this genre are often written by medical professionals, such as doctors; pharmacists too, in the instance of medicine.');
 insert into genre (name, description) value ('Biography', 'A biography, or simply bio, is a detailed description of a persons life. It involves more than just the basic facts like education, work, relationships, and death; it portrays a persons experience of these life events.');
-insert into genre (name, description) value ('Classic', 'A classic is a novel makes a contribution to literature. Classics come from all cultures and all years, and can reflect a time period, a societal standard or may offer commentary on a subject.');
+insert into genre (name, description) value ('Sociology', 'There are various writing genres within sociology. These genres include: social issue analyses, article critiques, quantitative research designs, quantitative research papers, qualitative research designs, and qualitative research papers.');
 insert into genre (name, description) value ('Psychology', 'Popular psychology (sometimes shortened as pop psychology or pop psych) is the concepts and theories about human mental life and behavior that are purportedly based on psychology and that find credence among and pass muster with the populace.');
 
 -- genres for readers
@@ -124,16 +124,16 @@ insert into beta_reader_genre (beta_reader_id,genre_id) value (3, 7);
 
 
 insert into book (plagiarism, isbn, num_of_pages, open_access, pdf, price, publishers_address, synopsis, title, year, editor_id, genre_id, lecturer_id, publisher_id, writer_id)
-value (false, '1234567891234', 100, true, '/uploaded-files/knjiga1.pdf',10.59, 'Bulevar oslobodjenja 34', 'Sada dopunjena novim istraživanjima, ova sjajna knjiga promenila je milione života svojim uvidom u razvojni mentalni sklop. Nakon decenija istraživanja svetski poznat univerzitetski psiholog dr Kerol S. Dvek otkrila je jednostavnu, ali revolucionarnu ideju: moć mentalnog sklopa. Pokazuje nam kako način na koji razmišljamo o svojim talentima i sposobnostima može dramatično uticati na uspeh u školi, sportu, umetnosti, kao i na gotovo svako područje ljudskog života.','Mentalni sklop','2015',5,7,9,1,6);
+value (false, '1234567891234', 100, true, 'uploaded-files/LiterarnoUdruzenje.pdf',10.59, 'Bulevar oslobodjenja 34, Novi Sad', 'Sada dopunjena novim istraživanjima, ova sjajna knjiga promenila je milione života svojim uvidom u razvojni mentalni sklop. Nakon decenija istraživanja svetski poznat univerzitetski psiholog dr Kerol S. Dvek otkrila je jednostavnu, ali revolucionarnu ideju: moć mentalnog sklopa. Pokazuje nam kako način na koji razmišljamo o svojim talentima i sposobnostima može dramatično uticati na uspeh u školi, sportu, umetnosti, kao i na gotovo svako područje ljudskog života.','Literarno udruženje','2015',7,7,9,1,8);
 
 insert into book (plagiarism, isbn, num_of_pages, open_access, pdf, price, publishers_address, synopsis, title, year, editor_id, genre_id, lecturer_id, publisher_id, writer_id)
-value (false, '1234567333333', 150, false, '/uploaded-files/knjiga2.pdf',17.50, 'Bulevar Mihajla Pupina 23', 'Triler koji istražuje dubine ljudske psihe i njene tamne strane koje ne želimo da priznamo. Nemačka, 1994. U šumi koja guta svojim moćnim jelama varošice regije Baden-Virtemberg, na Badnje veče, inspektor Jirgen Fišer biće svedok scene koju neće zaboraviti do kraja života. Sneg je iznenada prestao da pada, i u dubokoj tišini koja ga je okruživala, pred njegovim očima pojavio se proplanak, savršen krug među jelama, a u njegovom centru crvena barica.','Zora u crnoj sumi','2015',5,1,9,2,6);
+value (false, '1234567333333', 150, false, 'uploaded-files/KontrolnaTacka.pdf',17.50, 'Bulevar Mihajla Pupina 23, Novi Sad', 'Triler koji istražuje dubine ljudske psihe i njene tamne strane koje ne želimo da priznamo. Nemačka, 1994. U šumi koja guta svojim moćnim jelama varošice regije Baden-Virtemberg, na Badnje veče, inspektor Jirgen Fišer biće svedok scene koju neće zaboraviti do kraja života. Sneg je iznenada prestao da pada, i u dubokoj tišini koja ga je okruživala, pred njegovim očima pojavio se proplanak, savršen krug među jelama, a u njegovom centru crvena barica.','Kontrolna tacka','2015',7,1,9,2,8);
 
 insert into book (plagiarism, isbn, num_of_pages, open_access, pdf, price, publishers_address, synopsis, title, year, editor_id, genre_id, lecturer_id, publisher_id, writer_id)
-values (false, '2222', 300, true, 'plagiarism-files/KontrolnaTacka.pdf', 13.0, 'Novi Sad, Jevrejska 10', 'dddddddddddddd', 'Kul knjiga 1', '2020', 5, 1, 11, 1, 6);
+values (false, '3726384923721', 300, true, 'uploaded-files/Kriptovalute.pdf', 13.0, 'Jevrejska 10, Novi Sad', 'dddddddddddddd', 'Kriptovalute i Blockchain', '2020', 7, 2, 11, 1, 8);
 
 insert into book (plagiarism, isbn, num_of_pages, open_access, pdf, price, publishers_address, synopsis, title, year, editor_id, genre_id, lecturer_id, publisher_id, writer_id)
-values (false, '2223', 300, true, 'plagiarism-files/KontrolnaTacka2.pdf', 12.0, 'Novi Sad, Jevrejska 10', 'hhhh', 'Kul knjiga 2', '2020', 5, 2, 10, 1, 12);
+values (false, '3382746309821', 300, true, 'uploaded-files/DrustveniAspektiCOVID19.pdf', 12.0, 'Bulevar Nikole Tesle 4, Beograd', 'hhhh', 'Društveni aspekti - COVID19 ', '2017', 7, 6, 10, 1, 12);
 
 insert into book (plagiarism, isbn, num_of_pages, open_access, pdf, price, publishers_address, synopsis, title, year, editor_id, genre_id, lecturer_id, publisher_id, writer_id)
-values (false, '2224', 300, true, 'plagiarism-files/KontrolnaTacka2.pdf', 15.0, 'Novi Sad, Jevrejska 10', 'lll', 'Kul knjiga 3', '2020', 5, 1, 9, 1, 6);
+values (false, '1173829384923', 300, true, 'uploaded-files/ClanakODijabetesu.pdf', 15.0, 'Knez Mihajlova 45, Beograd', 'lll', 'Dijabetes - šećerna bolest', '2020', 7, 4, 9, 1, 8);

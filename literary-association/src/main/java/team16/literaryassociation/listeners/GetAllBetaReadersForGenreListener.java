@@ -6,10 +6,8 @@ import org.camunda.bpm.engine.form.FormField;
 import org.camunda.bpm.engine.form.TaskFormData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import team16.literaryassociation.elasticsearch.BetaReaderIndexUnit;
-import team16.literaryassociation.elasticsearch.SearchService;
-import team16.literaryassociation.model.Reader;
-import team16.literaryassociation.services.interfaces.ReaderService;
+import team16.literaryassociation.elasticsearch.model.BetaReaderIndexUnit;
+import team16.literaryassociation.elasticsearch.service.SearchService;
 
 import java.util.HashMap;
 import java.util.List;

@@ -1,4 +1,4 @@
-package team16.literaryassociation.elasticsearch;
+package team16.literaryassociation.elasticsearch.controller;
 
 import org.elasticsearch.client.Client;
 import org.springframework.beans.factory.annotation.Autowired;
