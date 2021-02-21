@@ -1,5 +1,5 @@
 import { Button, Modal, Form } from "react-bootstrap";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Header from "./Header";
 import { bookService } from "../services/book-service";
 import { searchService } from "../services/search-service";
@@ -7,7 +7,7 @@ import { indexerService } from "../services/indexer-service";
 
 import { shoppingCartService } from "../services/shopping-cart-service";
 import { toast } from "react-toastify";
-import { AMOUNT } from "../constants";
+import { AMOUNT, FIELDS, OPERATORS } from "../constants";
 import Select from "react-dropdown-select";
 import Select1 from "react-select";
 
@@ -23,46 +23,12 @@ const SearchBooks = () => {
   const [showBasic, setShowBasic] = useState(true);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showResults, setShowResults] = useState(false);
-  const [fields, setFields] = useState([
-    {
-      value: "title",
-      label: "Title",
-    },
-    {
-      value: "content",
-      label: "Content",
-    },
-    {
-      value: "writer",
-      label: "Writer",
-    },
-    {
-      value: "genre",
-      label: "Genre",
-    },
-    {
-      value: "all",
-      label: "All",
-    },
-  ]);
+  // BASIC SEARCH
   const [selectedField, setSelectedField] = useState("");
   const [query, setQuery] = useState("");
   const [phrase, setPhrase] = useState(false);
-
-  const getBooks = async () => {
-    try {
-      const response = await bookService.getAllBooks();
-      console.log(response);
-      setBooks(response);
-    } catch (error) {
-      if (error.response) {
-        console.log("Error: " + JSON.stringify(error.response));
-      }
-      toast.error(error.response ? error.response.data : error.message, {
-        hideProgressBar: true,
-      });
-    }
-  };
+  // ADVANCED SEARCH
+  const [advancedQueries, setAdvancedQueries] = useState([]);
 
   const addToCart = async (book, bookAmount) => {
     let currentUserId = localStorage.getItem("currentUserId");
@@ -132,6 +98,11 @@ const SearchBooks = () => {
     }
   };
 
+  const addField = () => {
+    let advancedQuery = { field: "", operator: "", query: "", phrase: false };
+    setAdvancedQueries((oldArray) => [...oldArray, advancedQuery]);
+  };
+
   const basicSearch = async (event) => {
     event.preventDefault();
 
@@ -147,7 +118,26 @@ const SearchBooks = () => {
     }
   };
 
-  const advancedSearch = () => {};
+  const advancedSearch = async (event) => {
+    event.preventDefault();
+    if (advancedQueries.length === 0) {
+      toast.error("You have to add at least one condition for search.", {
+        hideProgressBar: true,
+      });
+      return;
+    }
+    console.log(advancedQueries);
+    let payload = advancedQueries;
+    try {
+      const response = await searchService.advancedSearch(payload);
+      setBooks(response);
+      setShowResults(true);
+    } catch (error) {
+      toast.error(error.response ? error.response.data : error.message, {
+        hideProgressBar: true,
+      });
+    }
+  };
 
   return (
     <div>
@@ -180,6 +170,8 @@ const SearchBooks = () => {
         onClick={() => {
           setShowBasic(true);
           setShowAdvanced(false);
+          setShowResults(false);
+          setBooks([]);
         }}
       >
         Basic search
@@ -191,30 +183,38 @@ const SearchBooks = () => {
         onClick={() => {
           setShowAdvanced(true);
           setShowBasic(false);
+          setShowResults(false);
+          setAdvancedQueries([]);
+          setBooks([]);
         }}
       >
         Advanced search
       </Button>
+      {/***************************************** BASIC SEARCH *********************************************/}
       {showBasic && (
         <div className="mr-auto ml-auto" style={{ width: "50%" }}>
-          <h6>Basic search</h6>
-          <Select
-            placeholder="Search by..."
-            options={fields}
-            style={{ backgroundColor: "white", marginBottom: "1em" }}
-            onChange={(values) => {
-              setSelectedField(values[0].value);
-              console.log(values[0].value);
-            }}
-          />
+          <h6 className="mt-1">Basic search</h6>
           <Form onSubmit={basicSearch}>
+            <div className="row">
+              <div className="col-12">
+                <Select
+                  placeholder="Search by..."
+                  options={FIELDS}
+                  style={{ backgroundColor: "white", marginBottom: "1em" }}
+                  onChange={(values) => {
+                    setSelectedField(values[0].value);
+                    console.log(values[0].value);
+                  }}
+                />
+              </div>
+            </div>
             <div className="row">
               <div className="col-10">
                 <Form.Group>
                   <Form.Control
                     type="text"
                     onChange={(e) => {
-                      const { id, value } = e.target;
+                      const { value } = e.target;
                       setQuery(value);
                     }}
                     placeholder="Enter query"
@@ -223,7 +223,7 @@ const SearchBooks = () => {
                 </Form.Group>
               </div>
               <div className="col-2">
-                <Form.Group>
+                <Form.Group style={{ marginTop: "0.5em" }}>
                   <Form.Check
                     type="checkbox"
                     onChange={(e) => {
@@ -234,17 +234,127 @@ const SearchBooks = () => {
                 </Form.Group>
               </div>
             </div>
+            <Button
+              variant="success"
+              type="submit"
+              className="mb-1 mt-1 ml-2"
+              style={{ width: "7em", borderRadius: "2em" }}
+            >
+              Search
+            </Button>
           </Form>
         </div>
       )}
+      {/***************************************** ADVANCED SEARCH ******************************************/}
       {showAdvanced && (
-        <div>
-          <h6>Advanced search</h6>
-          <form>
-            <input type="text" name="query" id="query" />
-          </form>
+        <div className="mr-auto ml-auto" style={{ width: "60%" }}>
+          <h6 className="mt-1">Advanced search</h6>
+          <Form onSubmit={advancedSearch}>
+            {advancedQueries.map((advancedQuery, i) => {
+              return (
+                <div key={i}>
+                  <div className="row">
+                    <div className="col-5">
+                      <Select
+                        placeholder="Operator"
+                        required
+                        options={OPERATORS}
+                        style={{
+                          backgroundColor: "white",
+                          marginBottom: "1em",
+                        }}
+                        onChange={(values) => {
+                          const newAdvancedQueries = [...advancedQueries];
+                          newAdvancedQueries[i].operator = values[0].value;
+                          setAdvancedQueries(newAdvancedQueries);
+                        }}
+                      />
+                    </div>
+                    <div className="col-7">
+                      <Select
+                        placeholder="Search by..."
+                        required
+                        options={FIELDS}
+                        style={{
+                          backgroundColor: "white",
+                          marginBottom: "1em",
+                        }}
+                        onChange={(values) => {
+                          const newAdvancedQueries = [...advancedQueries];
+                          newAdvancedQueries[i].field = values[0].value;
+                          setAdvancedQueries(newAdvancedQueries);
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className="row">
+                    <div className="col-10">
+                      <Form.Group>
+                        <Form.Control
+                          type="text"
+                          onChange={(e) => {
+                            const { value } = e.target;
+                            const newAdvancedQueries = [...advancedQueries];
+                            newAdvancedQueries[i].query = value;
+                            setAdvancedQueries(newAdvancedQueries);
+                          }}
+                          placeholder="Enter query"
+                          required
+                        />
+                      </Form.Group>
+                    </div>
+                    <div className="col-2">
+                      <Form.Group style={{ marginTop: "0.5em" }}>
+                        <Form.Check
+                          type="checkbox"
+                          onChange={(e) => {
+                            const newAdvancedQueries = [...advancedQueries];
+                            newAdvancedQueries[i].phrase = e.target.checked;
+                            setAdvancedQueries(newAdvancedQueries);
+                          }}
+                          label="Phrase?"
+                        />
+                      </Form.Group>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            <Button
+              variant="primary"
+              type="button"
+              className="mb-1 mt-1 ml-2"
+              onClick={addField}
+              style={{ width: "7em", borderRadius: "2em" }}
+            >
+              Add field
+            </Button>
+            <Button
+              variant="success"
+              type="submit"
+              className="mb-1 mt-1 ml-2"
+              style={{ width: "7em", borderRadius: "2em" }}
+            >
+              Search
+            </Button>
+            <Button
+              variant="danger"
+              type="button"
+              className="mb-1 mt-1 ml-2"
+              onClick={() => {
+                setAdvancedQueries([]);
+                setShowResults(false);
+                setBooks([]);
+              }}
+              style={{ width: "7em", borderRadius: "2em" }}
+            >
+              Reset all
+            </Button>
+          </Form>
         </div>
       )}
+
+      {/***************************************** RESULTS ******************************************/}
       {showResults && (
         <div style={{ width: "60%" }} className="ml-auto mr-auto">
           <h6>Results:</h6>
@@ -297,6 +407,8 @@ const SearchBooks = () => {
           })}
         </div>
       )}
+
+      {/***************************************** DETAILS ******************************************/}
       {showDetails && (
         <Modal
           size="lg"

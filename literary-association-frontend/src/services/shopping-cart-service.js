@@ -59,7 +59,7 @@ class ShoppingCartService {
     let cart = JSON.parse(localStorage.getItem("cart"));
     let storageBooks = cart[currentUserId];
     for (let i = 0; i < storageBooks.length; i++) {
-      if (storageBooks[i].id == bookId) {
+      if (storageBooks[i].id === bookId) {
         storageBooks[i].amount = amount;
         break;
       }

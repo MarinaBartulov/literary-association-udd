@@ -11,6 +11,7 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilde
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import team16.literaryassociation.elasticsearch.dto.SearchAdvancedDTO;
 import team16.literaryassociation.elasticsearch.dto.SearchBasicDTO;
 import team16.literaryassociation.elasticsearch.dto.SearchResultDTO;
 import team16.literaryassociation.elasticsearch.model.BetaReaderIndexUnit;
@@ -37,7 +38,7 @@ public class SearchController {
         if(!searchBasicDTO.getField().equals("title") && !searchBasicDTO.getField().equals("writer")
         && !searchBasicDTO.getField().equals("content") && !searchBasicDTO.getField().equals("genre")
         && !searchBasicDTO.getField().equals("all")){
-            return ResponseEntity.badRequest().body("You can't search by given field.");
+            return ResponseEntity.badRequest().body("You can't search by field " + searchBasicDTO.getField());
         }
         if(searchBasicDTO.getQuery().trim().equals("")){
             return ResponseEntity.badRequest().body("Query can't be empty.");
@@ -48,9 +49,27 @@ public class SearchController {
     }
 
     @PostMapping(value = "/advanced")
-    public ResponseEntity advancedSearch(){
+    public ResponseEntity advancedSearch(@RequestBody List<SearchAdvancedDTO> searchAdvancedDTOS) throws IOException {
 
-        return ResponseEntity.ok().build();
+        if(searchAdvancedDTOS.size() == 0){
+            return ResponseEntity.badRequest().body("You have to add at least one condition for search");
+        }
+        for(SearchAdvancedDTO dto : searchAdvancedDTOS){
+            if(!dto.getField().equals("title") && !dto.getField().equals("writer")
+                    && !dto.getField().equals("content") && !dto.getField().equals("genre")
+                    && !dto.getField().equals("all")){
+                return ResponseEntity.badRequest().body("You can't search by field " + dto.getField());
+            }
+            if(dto.getQuery().trim().equals("")){
+                return ResponseEntity.badRequest().body("Query can't be empty.");
+            }
+            if(!dto.getOperator().equals("AND") && !dto.getOperator().equals("OR") && !dto.getOperator().equals("AND NOT")){
+                return ResponseEntity.badRequest().body("Operator is not valid.");
+            }
+        }
+
+        List<SearchResultDTO> searchResultDTOS = this.searchService.advancedSearch(searchAdvancedDTOS);
+        return new ResponseEntity(searchResultDTOS, HttpStatus.OK);
     }
 
 

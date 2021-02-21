@@ -75,3 +75,41 @@ export const SUBSCRIPTION_STATUS = [
   { value: "EXPIRED", label: "EXPIRED" },
   { value: "ALL", label: "ALL" },
 ];
+
+export const FIELDS = [
+  {
+    value: "title",
+    label: "Title",
+  },
+  {
+    value: "content",
+    label: "Content",
+  },
+  {
+    value: "writer",
+    label: "Writer",
+  },
+  {
+    value: "genre",
+    label: "Genre",
+  },
+  {
+    value: "all",
+    label: "All",
+  },
+];
+
+export const OPERATORS = [
+  {
+    value: "AND",
+    label: "AND",
+  },
+  {
+    value: "OR",
+    label: "OR",
+  },
+  {
+    value: "AND NOT",
+    label: "AND NOT",
+  },
+];

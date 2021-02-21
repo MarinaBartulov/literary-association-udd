@@ -23,6 +23,7 @@ import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Service;
+import team16.literaryassociation.elasticsearch.dto.SearchAdvancedDTO;
 import team16.literaryassociation.elasticsearch.dto.SearchBasicDTO;
 import team16.literaryassociation.elasticsearch.dto.SearchResultDTO;
 import team16.literaryassociation.elasticsearch.model.BetaReaderIndexUnit;
@@ -35,6 +36,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class SearchServiceImpl implements SearchService {
@@ -63,8 +65,10 @@ public class SearchServiceImpl implements SearchService {
                 map.put("content",1.0f);
                 map.put("genre",1.0f);
                 boolQueryBuilder.must(QueryBuilders.simpleQueryStringQuery(searchBasicDTO.getQuery()).fields(map));
+                //boolQueryBuilder.must(QueryBuilders.multiMatchQuery(searchBasicDTO.getQuery()).fields(map));
             }else{
                 boolQueryBuilder.must(QueryBuilders.simpleQueryStringQuery(searchBasicDTO.getQuery()).field(searchBasicDTO.getField()));
+                //boolQueryBuilder.must(QueryBuilders.matchQuery(searchBasicDTO.getField(),searchBasicDTO.getQuery()));
             }
         }
 
@@ -88,6 +92,108 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
+    public List<SearchResultDTO> advancedSearch(List<SearchAdvancedDTO> searchAdvancedDTOS) throws IOException {
+
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+
+        for(SearchAdvancedDTO dto : searchAdvancedDTOS){
+
+            if(dto.getOperator().equals("AND")){
+                if(dto.isPhrase()){
+                    if(dto.getField().equals("all")){
+                        boolQueryBuilder.must(QueryBuilders.multiMatchQuery(dto.getQuery(), "title", "writer", "content", "genre").type("phrase"));
+                    }else {
+                        boolQueryBuilder.must(QueryBuilders.matchPhraseQuery(dto.getField(), dto.getQuery()));
+                    }
+                }else{
+                    if(dto.getField().equals("all")) {
+                        Map<String, Float> map = new HashMap<>();
+                        map.put("title", 1.0f);
+                        map.put("writer", 1.0f);
+                        map.put("content",1.0f);
+                        map.put("genre",1.0f);
+                        boolQueryBuilder.must(QueryBuilders.simpleQueryStringQuery(dto.getQuery()).fields(map));
+                    }else{
+                        boolQueryBuilder.must(QueryBuilders.simpleQueryStringQuery(dto.getQuery()).field(dto.getField()));
+
+                    }
+                }
+            }else if(dto.getOperator().equals("OR")){
+                if(dto.isPhrase()){
+                    if(dto.getField().equals("all")){
+                        boolQueryBuilder.should(QueryBuilders.multiMatchQuery(dto.getQuery(), "title", "writer", "content", "genre").type("phrase"));
+                    }else {
+                        boolQueryBuilder.should(QueryBuilders.matchPhraseQuery(dto.getField(), dto.getQuery()));
+                    }
+                }else{
+                    if(dto.getField().equals("all")) {
+                        Map<String, Float> map = new HashMap<>();
+                        map.put("title", 1.0f);
+                        map.put("writer", 1.0f);
+                        map.put("content",1.0f);
+                        map.put("genre",1.0f);
+                        boolQueryBuilder.should(QueryBuilders.simpleQueryStringQuery(dto.getQuery()).fields(map));
+                    }else{
+                        boolQueryBuilder.should(QueryBuilders.simpleQueryStringQuery(dto.getQuery()).field(dto.getField()));
+                    }
+                }
+            }else{
+                if(dto.isPhrase()){
+                    if(dto.getField().equals("all")){
+                        boolQueryBuilder.mustNot(QueryBuilders.multiMatchQuery(dto.getQuery(), "title", "writer", "content", "genre").type("phrase"));
+                    }else {
+                        boolQueryBuilder.mustNot(QueryBuilders.matchPhraseQuery(dto.getField(), dto.getQuery()));
+                    }
+                }else{
+                    if(dto.getField().equals("all")) {
+                        Map<String, Float> map = new HashMap<>();
+                        map.put("title", 1.0f);
+                        map.put("writer", 1.0f);
+                        map.put("content",1.0f);
+                        map.put("genre",1.0f);
+                        boolQueryBuilder.mustNot(QueryBuilders.simpleQueryStringQuery(dto.getQuery()).fields(map));
+                    }else{
+                        boolQueryBuilder.mustNot(QueryBuilders.simpleQueryStringQuery(dto.getQuery()).field(dto.getField()));
+                    }
+                }
+            }
+        }
+
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        HighlightBuilder highlightBuilder = new HighlightBuilder();
+
+        List<String> highlightedFields = new ArrayList<>();
+        for(SearchAdvancedDTO dto : searchAdvancedDTOS){
+            if(dto.getOperator().equals("AND") || dto.getOperator().equals("OR")) {
+                if (dto.getField().equals("all")) {
+                    highlightedFields.add("title");
+                    highlightedFields.add("content");
+                    highlightedFields.add("genre");
+                    highlightedFields.add("writer");
+                } else {
+                    highlightedFields.add(dto.getField());
+                }
+            }
+
+        }
+        highlightedFields = highlightedFields.stream().distinct().collect(Collectors.toList());
+
+        for(String field : highlightedFields){
+            highlightBuilder.field(field);
+        }
+
+        sourceBuilder.highlighter(highlightBuilder);
+        sourceBuilder.query(boolQueryBuilder);
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.source(sourceBuilder);
+        SearchResponse searchResponse =  this.elasticsearchTemplate.getClient().search(searchRequest, RequestOptions.DEFAULT);
+        List<SearchResultDTO> results = this.getResult(searchResponse);
+        System.out.println("Pronadjeno knjiga: " + results.size());
+        return results;
+    }
+
+
+    @Override
     public List<BetaReaderIndexUnit> findBetaReadersForGenre(String genre, String writerUsername) {
 
         Writer writer = this.writerService.findByUsername(writerUsername);
@@ -108,7 +214,6 @@ public class SearchServiceImpl implements SearchService {
         }
         return betaReadersFound;
     }
-
 
 
     private List<SearchResultDTO> getResult(SearchResponse response){
