@@ -23,6 +23,7 @@ import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Service;
+import team16.literaryassociation.elasticsearch.dto.BRSearchResultDTO;
 import team16.literaryassociation.elasticsearch.dto.SearchAdvancedDTO;
 import team16.literaryassociation.elasticsearch.dto.SearchBasicDTO;
 import team16.literaryassociation.elasticsearch.dto.SearchResultDTO;
@@ -64,11 +65,9 @@ public class SearchServiceImpl implements SearchService {
                 map.put("writer", 1.0f);
                 map.put("content",1.0f);
                 map.put("genre",1.0f);
-                boolQueryBuilder.must(QueryBuilders.simpleQueryStringQuery(searchBasicDTO.getQuery()).fields(map));
-                //boolQueryBuilder.must(QueryBuilders.multiMatchQuery(searchBasicDTO.getQuery()).fields(map));
+                boolQueryBuilder.must(QueryBuilders.multiMatchQuery(searchBasicDTO.getQuery()).fields(map));
             }else{
-                boolQueryBuilder.must(QueryBuilders.simpleQueryStringQuery(searchBasicDTO.getQuery()).field(searchBasicDTO.getField()));
-                //boolQueryBuilder.must(QueryBuilders.matchQuery(searchBasicDTO.getField(),searchBasicDTO.getQuery()));
+                boolQueryBuilder.must(QueryBuilders.matchQuery(searchBasicDTO.getField(),searchBasicDTO.getQuery()));
             }
         }
 
@@ -112,9 +111,9 @@ public class SearchServiceImpl implements SearchService {
                         map.put("writer", 1.0f);
                         map.put("content",1.0f);
                         map.put("genre",1.0f);
-                        boolQueryBuilder.must(QueryBuilders.simpleQueryStringQuery(dto.getQuery()).fields(map));
+                        boolQueryBuilder.must(QueryBuilders.multiMatchQuery(dto.getQuery()).fields(map));
                     }else{
-                        boolQueryBuilder.must(QueryBuilders.simpleQueryStringQuery(dto.getQuery()).field(dto.getField()));
+                        boolQueryBuilder.must(QueryBuilders.matchQuery(dto.getField(),dto.getQuery()));
 
                     }
                 }
@@ -132,9 +131,9 @@ public class SearchServiceImpl implements SearchService {
                         map.put("writer", 1.0f);
                         map.put("content",1.0f);
                         map.put("genre",1.0f);
-                        boolQueryBuilder.should(QueryBuilders.simpleQueryStringQuery(dto.getQuery()).fields(map));
+                        boolQueryBuilder.should(QueryBuilders.multiMatchQuery(dto.getQuery()).fields(map));
                     }else{
-                        boolQueryBuilder.should(QueryBuilders.simpleQueryStringQuery(dto.getQuery()).field(dto.getField()));
+                        boolQueryBuilder.should(QueryBuilders.matchQuery(dto.getField(),dto.getQuery()));
                     }
                 }
             }else{
@@ -151,9 +150,9 @@ public class SearchServiceImpl implements SearchService {
                         map.put("writer", 1.0f);
                         map.put("content",1.0f);
                         map.put("genre",1.0f);
-                        boolQueryBuilder.mustNot(QueryBuilders.simpleQueryStringQuery(dto.getQuery()).fields(map));
+                        boolQueryBuilder.mustNot(QueryBuilders.multiMatchQuery(dto.getQuery()).fields(map));
                     }else{
-                        boolQueryBuilder.mustNot(QueryBuilders.simpleQueryStringQuery(dto.getQuery()).field(dto.getField()));
+                        boolQueryBuilder.mustNot(QueryBuilders.matchQuery(dto.getField(),dto.getQuery()));
                     }
                 }
             }
@@ -181,7 +180,6 @@ public class SearchServiceImpl implements SearchService {
         for(String field : highlightedFields){
             highlightBuilder.field(field);
         }
-
         sourceBuilder.highlighter(highlightBuilder);
         sourceBuilder.query(boolQueryBuilder);
         SearchRequest searchRequest = new SearchRequest();
@@ -194,7 +192,7 @@ public class SearchServiceImpl implements SearchService {
 
 
     @Override
-    public List<BetaReaderIndexUnit> findBetaReadersForGenre(String genre, String writerUsername) {
+    public List<BRSearchResultDTO> findBetaReadersForGenre(String genre, String writerUsername) throws IOException {
 
         Writer writer = this.writerService.findByUsername(writerUsername);
         JOpenCageGeocoder jOpenCageGeocoder = new JOpenCageGeocoder("d3ab24f7cbe84dc7b61a1be57b553ae6");
@@ -204,15 +202,27 @@ public class SearchServiceImpl implements SearchService {
         JOpenCageLatLng locationLatLng = response.getFirstPosition();
 
         BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
-        queryBuilder.mustNot(QueryBuilders.geoDistanceQuery("location").geoDistance(GeoDistance.ARC).point(locationLatLng.getLat(),locationLatLng.getLng()).distance("100km"));
-        queryBuilder.must(QueryBuilders.queryStringQuery(genre).field("genres"));
-        NativeSearchQuery searchQuery = new NativeSearchQueryBuilder().withQuery(queryBuilder).build();
-        List<BetaReaderIndexUnit> betaReadersFound = this.elasticsearchTemplate.queryForList(searchQuery, BetaReaderIndexUnit.class);
-        System.out.println(betaReadersFound.size());
-        for(BetaReaderIndexUnit bt : betaReadersFound){
+        queryBuilder.mustNot(QueryBuilders.geoDistanceQuery("location").point(locationLatLng.getLat(),locationLatLng.getLng()).distance("100km"));
+        queryBuilder.must(QueryBuilders.matchQuery("genres", genre));
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.query(queryBuilder);
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.source(sourceBuilder);
+        SearchResponse searchResponse =  this.elasticsearchTemplate.getClient().search(searchRequest, RequestOptions.DEFAULT);
+        List<BRSearchResultDTO> results = new ArrayList<>();
+        Gson gson = new Gson();
+
+        for(SearchHit hit : searchResponse.getHits()) {
+            BRSearchResultDTO dto = gson.fromJson(hit.getSourceAsString(), BRSearchResultDTO.class);
+            String genres = dto.getGenres().replace(" ", ", ");
+            dto.setGenres(genres.substring(0, genres.length()-2));
+            results.add(dto);
+
+        }
+        for(BRSearchResultDTO bt : results) {
             System.out.println("Found " + bt.getFullName());
         }
-        return betaReadersFound;
+        return results;
     }
 
 
@@ -228,6 +238,16 @@ public class SearchServiceImpl implements SearchService {
 
             Map<String, HighlightField> highlightFieldMap = hit.getHighlightFields();
 
+            //kada je not and
+            if(highlightFieldMap.isEmpty()){
+                Map<String, Object> s = hit.getSourceAsMap();
+                String content = (String) s.get("content");
+                if(content == null){
+                    continue;
+                }
+                highlights += content.substring(0, 350) + "... ";
+            }
+
             for(Map.Entry<String, HighlightField> h : highlightFieldMap.entrySet()){
 
                 Text[] fragments = h.getValue().fragments();
@@ -236,6 +256,8 @@ public class SearchServiceImpl implements SearchService {
                 }
             }
 
+            highlights = highlights.replace("<em>","<em><b>");
+            highlights = highlights.replace("</em>", "</b></em>");
             System.out.println("Highlight: " + highlights);
             dto.setHighlights(highlights);
             results.add(dto);

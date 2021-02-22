@@ -21,6 +21,7 @@ import Orders from "./components/Orders";
 import Subscription from "./components/Subscription";
 import Subscriptions from "./components/Subscriptions";
 import PurchasedBooks from "./components/PurchasedBooks";
+import SearchBetaReaders from "./components/SearchBetaReaders";
 
 function App() {
   return (
@@ -83,6 +84,9 @@ function App() {
             </Route>
             <Route exact path="/searchBooks">
               <SearchBooks />
+            </Route>
+            <Route exact path="/searchBetaReaders">
+              <SearchBetaReaders />
             </Route>
             <Route exact path="/orders">
               <Orders />

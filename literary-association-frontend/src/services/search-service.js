@@ -15,6 +15,13 @@ class SearchService extends HttpService {
     return response.data;
   };
 
+  betaReadersSearch = async (payload) => {
+    const response = await this.client.get(
+      ROUTES.SEARCH + "/betaReaders/" + payload
+    );
+    return response.data;
+  };
+
   download = async (url) => {
     const response = await this.client.get(
       "/task/downloadFile?filePath=" + url

@@ -66,6 +66,10 @@ const Header = () => {
   const goToSearchBooks = () => {
     history.push("/searchBooks");
   };
+
+  const goToSearchBetaReaders = () => {
+    history.push("/searchBetaReaders");
+  };
   const goToShoppingCart = () => {
     history.push("/shoppingCart");
   };
@@ -175,6 +179,15 @@ const Header = () => {
           <Button className="ml-2" variant="link" onClick={goToSearchBooks}>
             Search books
           </Button>
+          {loggedIn && role === "ROLE_WRITER" && (
+            <Button
+              className="ml-2"
+              variant="link"
+              onClick={goToSearchBetaReaders}
+            >
+              Search beta-readers
+            </Button>
+          )}
           {loggedIn && role === "ROLE_READER" && (
             <Button className="ml-2" variant="link" onClick={goToShoppingCart}>
               Shopping cart

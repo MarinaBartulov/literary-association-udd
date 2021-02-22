@@ -1,16 +1,13 @@
 package team16.literaryassociation.elasticsearch.controller;
 
-import org.elasticsearch.client.Client;
-import org.elasticsearch.common.geo.GeoDistance;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import team16.literaryassociation.elasticsearch.dto.BRSearchResultDTO;
 import team16.literaryassociation.elasticsearch.dto.SearchAdvancedDTO;
 import team16.literaryassociation.elasticsearch.dto.SearchBasicDTO;
 import team16.literaryassociation.elasticsearch.dto.SearchResultDTO;
@@ -19,13 +16,11 @@ import team16.literaryassociation.elasticsearch.service.SearchService;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/api/search")
 public class SearchController {
-
-    @Autowired
-    private ElasticsearchRestTemplate elasticsearchTemplate;
 
     @Autowired
     private SearchService searchService;
@@ -74,21 +69,16 @@ public class SearchController {
 
 
 
-    @GetMapping(value = "/findBetaReaders")
-    public ResponseEntity findBetaReaders() {
+    @GetMapping(value = "/betaReaders/{genre}")
+    public ResponseEntity findBetaReaders(@PathVariable("genre") String genre) throws IOException {
 
-        BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
-        queryBuilder.mustNot(QueryBuilders.geoDistanceQuery("location").geoDistance(GeoDistance.ARC).point(45.26553,19.8294194).distance("100km"));
-        queryBuilder.must(QueryBuilders.queryStringQuery("Crime").field("genres"));
-        queryBuilder.must(QueryBuilders.queryStringQuery("Classic").field("genres"));
-        NativeSearchQuery searchQuery = new NativeSearchQueryBuilder().withQuery(queryBuilder).build();
-        List<BetaReaderIndexUnit> betaReadersFound = this.elasticsearchTemplate.queryForList(searchQuery, BetaReaderIndexUnit.class);
-        System.out.println(betaReadersFound.size());
-        for(BetaReaderIndexUnit bt : betaReadersFound){
-            System.out.println("Found " + bt.getFullName());
+        if(genre.trim().equals("")){
+            return ResponseEntity.badRequest().body("Genre cannot be empty.");
         }
 
-        return ResponseEntity.ok().build();
+        Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
+        List<BRSearchResultDTO> result = this.searchService.findBetaReadersForGenre(genre, currentUser.getName());
+        return new ResponseEntity(result, HttpStatus.OK);
 
     }
 

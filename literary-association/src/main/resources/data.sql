@@ -63,6 +63,8 @@ values ('Writer', 'bojka.slike@gmail.com', '$2a$10$MgS2lefNxeyaDHxP/inYO.D0G5bkS
 -- insert into user (type, email, password, username, first_name, last_name, city, country, verified, enabled)
 -- value ('Editor', 'cetvrtieditor@maildrop.cc', '$2a$10$MgS2lefNxeyaDHxP/inYO.D0G5bkS8OX5RbAj7MJgghT16n6dQwIe', 'editor12345', 'Cetvrti', 'Cetvrtic', 'NS', 'Srbija', true, true);
 
+insert into user (type, email, password, username, first_name, last_name, city, country, verified, enabled, beta_reader, penalty_points)
+    value ('Reader', 'reader4@gmail.com', '$2a$10$MgS2lefNxeyaDHxP/inYO.D0G5bkS8OX5RbAj7MJgghT16n6dQwIe', 'reader4', 'Ana', 'Anic', 'Vranje', 'Serbia', true, true, true, 0);
 
 insert into user_roles (user_id, role_id) values (1,1); -- reader
 insert into user_roles (user_id, role_id) values (2,1); -- reader
@@ -80,20 +82,22 @@ insert into user_roles (user_id, role_id) values (12,2); -- writer
 -- insert into user_roles (user_id, role_id) values (14,5); -- editor
 -- insert into user_roles (user_id, role_id) values (15,5); -- editor
 -- insert into user_roles (user_id, role_id) values (16,5); -- editor
+insert into user_roles (user_id, role_id) values (13,1);
 
 
-insert into genre (name, description) value ('Thriller', 'Thrillers are characterized by fast pacing, frequent action, and resourceful heroes who must thwart the plans of more-powerful and better-equipped villains. Literary devices such as suspense, red herrings and cliffhangers are used extensively.');
-insert into genre (name, description) value ('Technology', 'Books in the technology nonfiction genre are about the scientific knowledge and practical purposes used to control and adapt to one''s natural environment.');
+insert into genre (name, description) value ('Triler', 'Thrillers are characterized by fast pacing, frequent action, and resourceful heroes who must thwart the plans of more-powerful and better-equipped villains. Literary devices such as suspense, red herrings and cliffhangers are used extensively.');
+insert into genre (name, description) value ('Tehnologija', 'Books in the technology nonfiction genre are about the scientific knowledge and practical purposes used to control and adapt to one''s natural environment.');
 insert into genre (name, description) value ('Drama', 'Drama is a mode of fictional representation through dialogue and performance. It is one of the literary genres, which is an imitation of some action. It contains conflict of characters, particularly the ones who perform in front of audience on the stage.');
-insert into genre (name, description) value ('Medicine', 'Books in the medical and medicine nonfiction genre are about medical practices and medicines used to treat illnesses. The books in this genre are often written by medical professionals, such as doctors; pharmacists too, in the instance of medicine.');
-insert into genre (name, description) value ('Biography', 'A biography, or simply bio, is a detailed description of a persons life. It involves more than just the basic facts like education, work, relationships, and death; it portrays a persons experience of these life events.');
-insert into genre (name, description) value ('Sociology', 'There are various writing genres within sociology. These genres include: social issue analyses, article critiques, quantitative research designs, quantitative research papers, qualitative research designs, and qualitative research papers.');
-insert into genre (name, description) value ('Psychology', 'Popular psychology (sometimes shortened as pop psychology or pop psych) is the concepts and theories about human mental life and behavior that are purportedly based on psychology and that find credence among and pass muster with the populace.');
+insert into genre (name, description) value ('Medicina', 'Books in the medical and medicine nonfiction genre are about medical practices and medicines used to treat illnesses. The books in this genre are often written by medical professionals, such as doctors; pharmacists too, in the instance of medicine.');
+insert into genre (name, description) value ('Biografija', 'A biography, or simply bio, is a detailed description of a persons life. It involves more than just the basic facts like education, work, relationships, and death; it portrays a persons experience of these life events.');
+insert into genre (name, description) value ('Sociologija', 'There are various writing genres within sociology. These genres include: social issue analyses, article critiques, quantitative research designs, quantitative research papers, qualitative research designs, and qualitative research papers.');
+insert into genre (name, description) value ('Psihologija', 'Popular psychology (sometimes shortened as pop psychology or pop psych) is the concepts and theories about human mental life and behavior that are purportedly based on psychology and that find credence among and pass muster with the populace.');
 
 -- genres for readers
--- reader1 : Thriller, Romance, Drama
--- reader2 : Crime, Biography, Classic
--- reader3 : Drama, Classic, Psychology
+-- reader1 : Thriller, Technology, Drama
+-- reader2 : Medicine, Biography, Sociology
+-- reader3 : Drama, Sociology, Psychology
+-- reader4 : Technology, Medicine, Psychology
 insert into reader_genre (reader_id,genre_id) value (1, 1);
 insert into reader_genre (reader_id,genre_id) value (1, 2);
 insert into reader_genre (reader_id,genre_id) value (1, 3);
@@ -103,11 +107,15 @@ insert into reader_genre (reader_id,genre_id) value (2, 6);
 insert into reader_genre (reader_id,genre_id) value (3, 3);
 insert into reader_genre (reader_id,genre_id) value (3, 6);
 insert into reader_genre (reader_id,genre_id) value (3, 7);
+insert into reader_genre (reader_id,genre_id) value (13, 2);
+insert into reader_genre (reader_id,genre_id) value (13, 4);
+insert into reader_genre (reader_id,genre_id) value (13, 7);
 
 -- genres for beta-readers
--- beta-reader1 : Thriller, Romance, Drama, Crime
--- beta-reader2 : Thriller, Crime, Biography, Classic
--- beta-reader3 : Thriller, Drama, Classic, Psychology
+-- beta-reader1 : Thriller, Technology, Drama, Medicine
+-- beta-reader2 : Thriller, Medicine, Biography, Sociology
+-- beta-reader3 : Thriller, Drama, Sociology, Psychology
+-- beta-reader4 : Technology, Medicine, Biography, Psychology
 insert into beta_reader_genre (beta_reader_id,genre_id) value (1, 1);
 insert into beta_reader_genre (beta_reader_id,genre_id) value (1, 2);
 insert into beta_reader_genre (beta_reader_id,genre_id) value (1, 3);
@@ -120,7 +128,10 @@ insert into beta_reader_genre (beta_reader_id,genre_id) value (3, 1);
 insert into beta_reader_genre (beta_reader_id,genre_id) value (3, 3);
 insert into beta_reader_genre (beta_reader_id,genre_id) value (3, 6);
 insert into beta_reader_genre (beta_reader_id,genre_id) value (3, 7);
-
+insert into beta_reader_genre (beta_reader_id,genre_id) value (13, 2);
+insert into beta_reader_genre (beta_reader_id,genre_id) value (13, 4);
+insert into beta_reader_genre (beta_reader_id,genre_id) value (13, 5);
+insert into beta_reader_genre (beta_reader_id,genre_id) value (13, 7);
 
 
 insert into book (plagiarism, isbn, num_of_pages, open_access, pdf, price, publishers_address, synopsis, title, year, editor_id, genre_id, lecturer_id, publisher_id, writer_id)

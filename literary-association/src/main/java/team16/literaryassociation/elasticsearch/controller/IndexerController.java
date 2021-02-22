@@ -53,6 +53,7 @@ public class IndexerController {
     @GetMapping(value = "/books")
     public ResponseEntity indexBooks() throws IOException {
 
+        System.out.println("Uslo u indeksiranje knjiga");
         this.bookIndexRepository.deleteAll();
         List<Book> books = this.bookService.getBooks();
         System.out.println("Books indexing started...");
@@ -84,6 +85,7 @@ public class IndexerController {
     @GetMapping(value = "/betaReaders")
     public ResponseEntity indexBetaReaders() {
 
+        System.out.println("Uslo u indeksiranje beta-readera");
         this.betaReaderIndexRepository.deleteAll();
         List<Reader> betaReaders = this.readerService.getAllBetaReaders();
         System.out.println("Beta-readers indexing started...");
