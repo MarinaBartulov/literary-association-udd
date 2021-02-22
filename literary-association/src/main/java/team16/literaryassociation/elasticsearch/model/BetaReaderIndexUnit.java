@@ -19,9 +19,6 @@ public class BetaReaderIndexUnit {
     @Id
     private Long id;
 
-    @Field(type = FieldType.Long, store = true)
-    private Long betaReaderId;
-
     @Field(type = FieldType.Text, store = true, analyzer = "serbian")
     private String fullName;
 

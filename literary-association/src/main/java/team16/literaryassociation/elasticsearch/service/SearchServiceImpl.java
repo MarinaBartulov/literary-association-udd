@@ -13,13 +13,14 @@ import org.elasticsearch.common.geo.GeoDistance;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.SearchHit;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Service;
@@ -71,7 +72,6 @@ public class SearchServiceImpl implements SearchService {
             }
         }
 
-        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         HighlightBuilder highlightBuilder = new HighlightBuilder();
 
         if(searchBasicDTO.getField().equals("all")){
@@ -80,12 +80,12 @@ public class SearchServiceImpl implements SearchService {
             highlightBuilder.field(searchBasicDTO.getField());
         }
 
-        sourceBuilder.highlighter(highlightBuilder);
-        sourceBuilder.query(boolQueryBuilder);
-        SearchRequest searchRequest = new SearchRequest();
-        searchRequest.source(sourceBuilder);
-        SearchResponse searchResponse =  this.elasticsearchTemplate.getClient().search(searchRequest, RequestOptions.DEFAULT);
-        List<SearchResultDTO> results = this.getResult(searchResponse);
+        NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
+                .withQuery(boolQueryBuilder)
+                .withHighlightBuilder(highlightBuilder)
+                .build();
+        SearchHits<BookIndexUnit> searchHits =  this.elasticsearchTemplate.search(searchQuery, BookIndexUnit.class, IndexCoordinates.of("books_index"));
+        List<SearchResultDTO> results = this.getResult(searchHits);
         System.out.println("Pronadjeno knjiga: " + results.size());
         return results;
     }
@@ -158,7 +158,6 @@ public class SearchServiceImpl implements SearchService {
             }
         }
 
-        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         HighlightBuilder highlightBuilder = new HighlightBuilder();
 
         List<String> highlightedFields = new ArrayList<>();
@@ -180,12 +179,13 @@ public class SearchServiceImpl implements SearchService {
         for(String field : highlightedFields){
             highlightBuilder.field(field);
         }
-        sourceBuilder.highlighter(highlightBuilder);
-        sourceBuilder.query(boolQueryBuilder);
-        SearchRequest searchRequest = new SearchRequest();
-        searchRequest.source(sourceBuilder);
-        SearchResponse searchResponse =  this.elasticsearchTemplate.getClient().search(searchRequest, RequestOptions.DEFAULT);
-        List<SearchResultDTO> results = this.getResult(searchResponse);
+
+        NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
+                .withQuery(boolQueryBuilder)
+                .withHighlightBuilder(highlightBuilder)
+                .build();
+        SearchHits<BookIndexUnit> searchHits =  this.elasticsearchTemplate.search(searchQuery, BookIndexUnit.class, IndexCoordinates.of("books_index"));
+        List<SearchResultDTO> results = this.getResult(searchHits);
         System.out.println("Pronadjeno knjiga: " + results.size());
         return results;
     }
@@ -204,18 +204,16 @@ public class SearchServiceImpl implements SearchService {
         BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
         queryBuilder.mustNot(QueryBuilders.geoDistanceQuery("location").point(locationLatLng.getLat(),locationLatLng.getLng()).distance("100km"));
         queryBuilder.must(QueryBuilders.matchQuery("genres", genre));
-        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-        sourceBuilder.query(queryBuilder);
-        SearchRequest searchRequest = new SearchRequest();
-        searchRequest.source(sourceBuilder);
-        SearchResponse searchResponse =  this.elasticsearchTemplate.getClient().search(searchRequest, RequestOptions.DEFAULT);
-        List<BRSearchResultDTO> results = new ArrayList<>();
-        Gson gson = new Gson();
+        NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
+                .withQuery(queryBuilder)
+                .build();
 
-        for(SearchHit hit : searchResponse.getHits()) {
-            BRSearchResultDTO dto = gson.fromJson(hit.getSourceAsString(), BRSearchResultDTO.class);
-            String genres = dto.getGenres().replace(" ", ", ");
-            dto.setGenres(genres.substring(0, genres.length()-2));
+        SearchHits<BetaReaderIndexUnit> searchHits =  this.elasticsearchTemplate.search(searchQuery, BetaReaderIndexUnit.class, IndexCoordinates.of("beta_readers_index"));
+        List<BRSearchResultDTO> results = new ArrayList<>();
+
+        for(SearchHit<BetaReaderIndexUnit> hit : searchHits) {
+            BetaReaderIndexUnit br = hit.getContent();
+            BRSearchResultDTO dto = new BRSearchResultDTO(br);
             results.add(dto);
 
         }
@@ -226,33 +224,31 @@ public class SearchServiceImpl implements SearchService {
     }
 
 
-    private List<SearchResultDTO> getResult(SearchResponse response){
+    private List<SearchResultDTO> getResult(SearchHits<BookIndexUnit> searchHits){
 
         List<SearchResultDTO> results = new ArrayList<>();
-        Gson gson = new Gson();
 
-        for(SearchHit hit : response.getHits()){
+        for(org.springframework.data.elasticsearch.core.SearchHit<BookIndexUnit> hit : searchHits){
 
-            SearchResultDTO dto = gson.fromJson(hit.getSourceAsString(), SearchResultDTO.class);
+            SearchResultDTO dto = new SearchResultDTO();
+            BookIndexUnit bi = hit.getContent();
+            dto.setTitle(bi.getTitle());
+            dto.setId(bi.getId());
+            dto.setGenre(bi.getGenre());
+            dto.setWriter(bi.getWriter());
+            dto.setOpenAccess(bi.isOpenAccess());
+            dto.setPdf(bi.getPdf());
+
             String highlights = "... ";
 
-            Map<String, HighlightField> highlightFieldMap = hit.getHighlightFields();
-
-            //kada je not and
+            Map<String, List<String>> highlightFieldMap = hit.getHighlightFields();
             if(highlightFieldMap.isEmpty()){
-                Map<String, Object> s = hit.getSourceAsMap();
-                String content = (String) s.get("content");
-                if(content == null){
-                    continue;
-                }
-                highlights += content.substring(0, 350) + "... ";
+                highlights += hit.getContent().getContent().substring(0,350) + "... ";
             }
 
-            for(Map.Entry<String, HighlightField> h : highlightFieldMap.entrySet()){
-
-                Text[] fragments = h.getValue().fragments();
-                for(Text text : fragments){
-                    highlights += text.string() + "... ";
+            for(Map.Entry<String, List<String>> h : highlightFieldMap.entrySet()){
+                for(String str : h.getValue()){
+                    highlights += str + "... ";
                 }
             }
 

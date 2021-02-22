@@ -46,8 +46,8 @@ public class SearchController {
     @PostMapping(value = "/advanced")
     public ResponseEntity advancedSearch(@RequestBody List<SearchAdvancedDTO> searchAdvancedDTOS) throws IOException {
 
-        if(searchAdvancedDTOS.size() == 0){
-            return ResponseEntity.badRequest().body("You have to add at least one condition for search");
+        if(searchAdvancedDTOS.size() < 2){
+            return ResponseEntity.badRequest().body("You have to add at least 2 conditions for search");
         }
         for(SearchAdvancedDTO dto : searchAdvancedDTOS){
             if(!dto.getField().equals("title") && !dto.getField().equals("writer")

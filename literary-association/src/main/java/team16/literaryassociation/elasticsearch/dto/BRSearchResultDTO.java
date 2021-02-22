@@ -18,7 +18,7 @@ public class BRSearchResultDTO {
 
 
     public BRSearchResultDTO(BetaReaderIndexUnit br){
-        this.betaReaderId = br.getBetaReaderId();
+        this.betaReaderId = br.getId();
         this.fullName = br.getFullName();
         this.genres = br.getGenres().replace(" ", ", ");
         this.genres = this.genres.substring(0, this.genres.length()-2);

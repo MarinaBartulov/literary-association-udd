@@ -39,7 +39,7 @@ value ('Editor', 'editor123@maildrop.cc', '$2a$10$MgS2lefNxeyaDHxP/inYO.D0G5bkS8
 
 -- writer (sifra: reader123, username: writer123)
 insert into user (type, email, password, username, first_name, last_name, city, country, verified, enabled)
-value ('Writer', 'car.insurance.praksa777@gmail.com', '$2a$10$MgS2lefNxeyaDHxP/inYO.D0G5bkS8OX5RbAj7MJgghT16n6dQwIe', 'writer123', 'Pera', 'Peric', 'Novi Sad', 'Serbia', true, true);
+value ('Writer', 'car.insurance.praksa777@gmail.com', '$2a$10$MgS2lefNxeyaDHxP/inYO.D0G5bkS8OX5RbAj7MJgghT16n6dQwIe', 'writer123', 'Pera', 'Perić', 'Novi Sad', 'Serbia', true, true);
 
 -- lectures
 insert into user (type, email, password, username, first_name, last_name, city, country, verified, enabled)
@@ -51,7 +51,7 @@ value ('Lecturer', 'lecturer3@gmail.com', '$2a$10$MgS2lefNxeyaDHxP/inYO.D0G5bkS8
 
 -- writers (sifra: reader123, username: writer1234 id: 12)
 insert into user (type, email, password, username, first_name, last_name, city, country, verified, enabled)
-values ('Writer', 'bojka.slike@gmail.com', '$2a$10$MgS2lefNxeyaDHxP/inYO.D0G5bkS8OX5RbAj7MJgghT16n6dQwIe', 'writer1234', 'Nikola', 'Nikolic', 'NS', 'Srbija', true, true);
+values ('Writer', 'bojka.slike@gmail.com', '$2a$10$MgS2lefNxeyaDHxP/inYO.D0G5bkS8OX5RbAj7MJgghT16n6dQwIe', 'writer1234', 'Mara', 'Marić', 'Novi Sad', 'Serbia', true, true);
 
 -- editors (sifra: reader123)
 -- insert into user (type, email, password, username, first_name, last_name, city, country, verified, enabled)

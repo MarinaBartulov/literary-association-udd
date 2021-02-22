@@ -120,8 +120,8 @@ const SearchBooks = () => {
 
   const advancedSearch = async (event) => {
     event.preventDefault();
-    if (advancedQueries.length === 0) {
-      toast.error("You have to add at least one condition for search.", {
+    if (advancedQueries.length < 2) {
+      toast.error("You have to add at least 2 conditions for search.", {
         hideProgressBar: true,
       });
       return;

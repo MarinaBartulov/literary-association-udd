@@ -92,7 +92,7 @@ public class IndexerController {
 
         for(Reader r : betaReaders){
             BetaReaderIndexUnit br = new BetaReaderIndexUnit();
-            br.setBetaReaderId(r.getId());
+            br.setId(r.getId());
             br.setFullName(r.getFirstName() + " " + r.getLastName());
 
             String genres = "";
