@@ -68,4 +68,9 @@ public class BookServiceImpl implements BookService {
 
         return this.bookRepository.findAll();
     }
+
+    @Override
+    public List<Book> findByPdfEndsWith(String fileName) {
+        return this.bookRepository.findByPdfEndsWith("/" + fileName);
+    }
 }

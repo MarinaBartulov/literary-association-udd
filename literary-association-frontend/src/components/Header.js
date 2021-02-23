@@ -70,6 +70,11 @@ const Header = () => {
   const goToSearchBetaReaders = () => {
     history.push("/searchBetaReaders");
   };
+
+  const goToPlagiarismCheck = () => {
+    history.push("/plagiarismCheck");
+  };
+
   const goToShoppingCart = () => {
     history.push("/shoppingCart");
   };
@@ -186,6 +191,15 @@ const Header = () => {
               onClick={goToSearchBetaReaders}
             >
               Search beta-readers
+            </Button>
+          )}
+          {loggedIn && role === "ROLE_WRITER" && (
+            <Button
+              className="ml-2"
+              variant="link"
+              onClick={goToPlagiarismCheck}
+            >
+              Plagiarism
             </Button>
           )}
           {loggedIn && role === "ROLE_READER" && (

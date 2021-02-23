@@ -27,6 +27,16 @@ class SearchService extends HttpService {
       "/task/downloadFile?filePath=" + url
     );
   };
+
+  checkPlagiarism = async (file) => {
+    const formdata = new FormData();
+    formdata.append("file", file);
+    const response = await this.client.post(
+      "/search/checkPlagiarism",
+      formdata
+    );
+    return response.data;
+  };
 }
 
 export const searchService = new SearchService();

@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import team16.literaryassociation.elasticsearch.dto.BRSearchResultDTO;
 import team16.literaryassociation.elasticsearch.dto.SearchAdvancedDTO;
 import team16.literaryassociation.elasticsearch.dto.SearchBasicDTO;
@@ -14,6 +15,7 @@ import team16.literaryassociation.elasticsearch.dto.SearchResultDTO;
 import team16.literaryassociation.elasticsearch.model.BetaReaderIndexUnit;
 import team16.literaryassociation.elasticsearch.service.SearchService;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -80,6 +82,20 @@ public class SearchController {
         List<BRSearchResultDTO> result = this.searchService.findBetaReadersForGenre(genre, currentUser.getName());
         return new ResponseEntity(result, HttpStatus.OK);
 
+    }
+
+    @PostMapping(value = "/checkPlagiarism")
+    public ResponseEntity checkPlagiarism(@RequestParam("file") MultipartFile file) throws IOException {
+
+        System.out.println("Uslo u proveru plagijarizma...");
+
+        if(file == null){
+            return ResponseEntity.badRequest().body("File is required");
+        }
+        System.out.println(file.getOriginalFilename());
+
+        String result = this.searchService.checkPlagiarism(file);
+        return new ResponseEntity(result, HttpStatus.OK);
     }
 
 

@@ -22,6 +22,7 @@ import Subscription from "./components/Subscription";
 import Subscriptions from "./components/Subscriptions";
 import PurchasedBooks from "./components/PurchasedBooks";
 import SearchBetaReaders from "./components/SearchBetaReaders";
+import PlagiarismCheck from "./components/PlagiarismCheck";
 
 function App() {
   return (
@@ -87,6 +88,9 @@ function App() {
             </Route>
             <Route exact path="/searchBetaReaders">
               <SearchBetaReaders />
+            </Route>
+            <Route exact path="/plagiarismCheck">
+              <PlagiarismCheck />
             </Route>
             <Route exact path="/orders">
               <Orders />

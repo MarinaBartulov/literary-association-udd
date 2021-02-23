@@ -17,4 +17,5 @@ public interface BookService {
     BookDetailsDTO getBookDetails(Long id);
     Book findById(Long id);
     List<Book> getBooks();
+    List<Book> findByPdfEndsWith(String fileName);
 }

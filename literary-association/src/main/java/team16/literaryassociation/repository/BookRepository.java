@@ -21,4 +21,6 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     @Query(value = "from Book b join b.publisher p where p.activated = true")
     List<Book> findAllBook();
+
+    List<Book> findByPdfEndsWith(String fileName);
 }
